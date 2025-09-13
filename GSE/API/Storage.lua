@@ -362,12 +362,13 @@ function GSE.CreateMacroIcon(sequenceName, icon, forceglobalstub)
                 GNOME
             )
         else
-            CreateMacro(
-                sequenceName,
-                (GSEOptions.setDefaultIconQuestionMark and "INV_MISC_QUESTIONMARK" or icon),
-                GSE.CreateMacroString(sequenceName),
-                (forceglobalstub and false or GSE.SetMacroLocation())
-            )
+		CreateMacro(sequenceName, 1, GSE.CreateMacroString(sequenceName), (forceglobalstub and false or GSE.SetMacroLocation()))
+            -- CreateMacro(
+                -- sequenceName,
+                -- (GSEOptions.setDefaultIconQuestionMark and "INV_MISC_QUESTIONMARK" or icon),
+                -- GSE.CreateMacroString(sequenceName),
+                -- (forceglobalstub and false or GSE.SetMacroLocation())
+            -- )
         end
     end
 end
@@ -761,6 +762,9 @@ function GSE.UpdateIcon(self, reset)
         return
     end
     
+    local commandline = executionseq[step]
+    local foundSpell, notSpell = false, ""
+    
     for cmd, etc in gmatch(commandline or "", "/(%w+)%s+([^\n]+)") do
         if Statics.CastCmds[strlower(cmd)] or strlower(cmd) == "castsequence" then
             local spell, target = SecureCmdOptionParse(etc)
@@ -797,8 +801,6 @@ function GSE.UpdateIcon(self, reset)
     -- Force immediate icon refresh
     if not reset then
         GSE.UsedSequences[gsebutton] = true
-        
-        -- Direct icon texture update for immediate visual feedback
         local macroIndex = GetMacroIndexByName(gsebutton)
         if macroIndex and macroIndex ~= 0 then
             local _, iconTexture = GetMacroInfo(macroIndex)
@@ -1451,11 +1453,33 @@ local function PCallCreateGSE3Button(macro, name, combatReset)
         gsebutton:RegisterForClicks("AnyUp", "AnyDown")
         gsebutton:SetAttribute("combatreset", combatReset)
         gsebutton:SetScript("OnAttributeChanged", function(self, name, value)
-		if name == "step" then
-				-- Use a delayed call to avoid taint issues
-				GCD_Update_Timer = myAceTimer:ScheduleTimer(function() 
-					GSE.UpdateIcon(self, false) 
-				end, 0.01)
+    if name == "step" then
+        -- Cancel any existing timer
+        if self.GCDUpdateTimer then
+            myAceTimer:CancelTimer(self.GCDUpdateTimer)
+            self.GCDUpdateTimer = nil
+        end
+        
+        -- Use a repeating timer that checks for GCD completion
+        self.GCDUpdateTimer = myAceTimer:ScheduleRepeatingTimer(function(timer)
+            local start, duration, enabled = GetSpellCooldown(61304)
+            
+            if enabled == 0 or duration == 0 then
+                -- GCD completed, update icon and stop timer
+                GSE.UpdateIcon(self, false)
+                myAceTimer:CancelTimer(timer)
+                self.GCDUpdateTimer = nil
+            end
+        end, 0.05) -- Check every 50ms
+        
+        -- Safety: cancel the repeating timer after 2 seconds max
+        myAceTimer:ScheduleTimer(function()
+            if self.GCDUpdateTimer then
+                myAceTimer:CancelTimer(self.GCDUpdateTimer)
+                self.GCDUpdateTimer = nil
+                GSE.UpdateIcon(self, false) -- Force update
+					end
+				end, 2.0)
 			end
 		end)
         

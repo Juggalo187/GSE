@@ -579,7 +579,7 @@ function GSE:GSSlash(input)
         -- Convert macros to new format in a one off run.
         GSE.UpdateMacroString()
     elseif command == "movelostmacros" then
-        GSE.MoveMacroToClassFromGlobal()
+        --GSE.MoveMacroToClassFromGlobal()
     elseif command == "checkmacrosforerrors" then
         GSE.ScanMacrosForErrors()
     elseif command == "compressstring" then
