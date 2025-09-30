@@ -8,8 +8,42 @@ local L = GSE.L
 --- GSE.TranslateSequence will translate from local spell name to spell id and back again.\
 -- Mode of "STRING" will return local names where mode "ID" will return id's
 -- dropAbsolute will remove "$$" from the start of lines.
+-- function GSE.TranslateSequence(tab, mode, dropAbsolute)
+    -- GSE.PrintDebugMessage("GSE.TranslateSequence  Mode: " .. mode, GNOME)
+    -- for k, v in ipairs(tab) do
+        -- -- Translate Sequence
+        -- if type(v) == "table" then
+            -- tab[k] = GSE.TranslateSequence(v, mode, dropAbsolute)
+        -- else
+            -- local translation = GSE.TranslateString(v, mode, nil, dropAbsolute)
+            -- tab[k] = translation
+        -- end
+    -- end
+
+    -- -- Check for blanks
+    -- for i, v in ipairs(tab) do
+        -- if GSE.isEmpty(v) or v == "" then
+            -- tab[i] = nil
+        -- end
+    -- end
+    -- return tab
+-- end
+
 function GSE.TranslateSequence(tab, mode, dropAbsolute)
+    -- Add nil check at the beginning
+    if not tab then
+        GSE.PrintDebugMessage("GSE.TranslateSequence: tab is nil", GNOME)
+        return {}
+    end
+    
     GSE.PrintDebugMessage("GSE.TranslateSequence  Mode: " .. mode, GNOME)
+    
+    -- Add type check to handle non-table inputs
+    if type(tab) ~= "table" then
+        GSE.PrintDebugMessage("GSE.TranslateSequence: tab is not a table, type: " .. type(tab), GNOME)
+        return {tab} -- Return as single-item table or handle as needed
+    end
+    
     for k, v in ipairs(tab) do
         -- Translate Sequence
         if type(v) == "table" then

@@ -1777,7 +1777,19 @@ local function addKeyPairRow(container, rowWidth, key, value, version)
     spacerlabel1:SetWidth(5)
     linegroup1:AddChild(spacerlabel1)
 
-    local valueEditBox = AceGUI:Create("MultiLineEditBox")
+    -- local valueEditBox = AceGUI:Create("MultiLineEditBox")
+    -- valueEditBox:SetLabel()
+    -- valueEditBox:SetNumLines(3)
+    -- valueEditBox:SetWidth(rowWidth * 0.75 + 5)
+    -- valueEditBox:DisableButton(true)
+    -- valueEditBox:SetText(value)
+    -- valueEditBox:SetCallback(
+        -- "OnTextChanged",
+        -- function(self, event, text)
+            -- editframe.Sequence.Macros[version].Variables[currentKey] = GSE.SplitMeIntolines(text)
+        -- end
+    -- )
+	    local valueEditBox = AceGUI:Create("MultiLineEditBox")
     valueEditBox:SetLabel()
     valueEditBox:SetNumLines(3)
     valueEditBox:SetWidth(rowWidth * 0.75 + 5)
@@ -2638,24 +2650,48 @@ local function drawAction(container, action, version, keyPath)
             linegroup1:AddChild(looplimit)
         end
         macroPanel:AddChild(linegroup1)
-        local valueEditBox = AceGUI:Create("MultiLineEditBox")
-        valueEditBox:SetLabel()
-        local numlines = #action
-        valueEditBox:SetNumLines(numlines)
-        valueEditBox:SetWidth(maxWidth)
-        valueEditBox:DisableButton(true)
-        valueEditBox:SetText(table.concat(GSE.TranslateSequence(action, Statics.TranslatorMode.Current), "\n"))
-        --local compiledAction = GSE.CompileAction(action, editframe.Sequence.Macros[version])
-        valueEditBox:SetCallback(
-            "OnTextChanged",
-            function()
-                local returnAction = GSE.SplitMeIntolines(valueEditBox:GetText())
-                local boxlines = #returnAction
-                returnAction["Type"] = action.Type
-                editframe.Sequence.Macros[version].Actions[keyPath] = returnAction
-                --compiledAction = GSE.CompileAction(returnAction, editframe.Sequence.Macros[version])
-            end
-        )
+        -- local valueEditBox = AceGUI:Create("MultiLineEditBox")
+        -- valueEditBox:SetLabel()
+        -- local numlines = #action
+        -- valueEditBox:SetNumLines(numlines)
+        -- valueEditBox:SetWidth(maxWidth)
+        -- valueEditBox:DisableButton(true)
+        -- valueEditBox:SetText(table.concat(GSE.TranslateSequence(action, Statics.TranslatorMode.Current), "\n"))
+        -- --local compiledAction = GSE.CompileAction(action, editframe.Sequence.Macros[version])
+        -- valueEditBox:SetCallback(
+            -- "OnTextChanged",
+            -- function()
+                -- local returnAction = GSE.SplitMeIntolines(valueEditBox:GetText())
+                -- local boxlines = #returnAction
+                -- returnAction["Type"] = action.Type
+                -- editframe.Sequence.Macros[version].Actions[keyPath] = returnAction
+                -- --compiledAction = GSE.CompileAction(returnAction, editframe.Sequence.Macros[version])
+            -- end
+        -- )
+		local valueEditBox = AceGUI:Create("MultiLineEditBox")
+		valueEditBox:SetLabel()
+		local numlines = #action
+		valueEditBox:SetNumLines(numlines)
+		valueEditBox:SetWidth(maxWidth)
+		valueEditBox:DisableButton(true)
+
+		-- Convert all values to strings before concatenating
+		local translatedTable = GSE.TranslateSequence(action, Statics.TranslatorMode.Current)
+		local stringTable = {}
+		for i, v in ipairs(translatedTable) do
+			stringTable[i] = tostring(v or "")  -- Handle nil values by converting to empty string
+		end
+		valueEditBox:SetText(table.concat(stringTable, "\n"))
+
+		valueEditBox:SetCallback(
+			"OnTextChanged",
+			function()
+				local returnAction = GSE.SplitMeIntolines(valueEditBox:GetText())
+				local boxlines = #returnAction
+				returnAction["Type"] = action.Type
+				editframe.Sequence.Macros[version].Actions[keyPath] = returnAction
+			end
+		)
         valueEditBox:SetCallback(
             "OnEditFocusLost",
             function()
