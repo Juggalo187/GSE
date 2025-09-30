@@ -605,7 +605,7 @@ Statics.TableMetadataFunction = {
     __index = function(t, k)
         for _, v in ipairs(k) do
             if not t then
-                error("attempt to index nil")
+                --error("attempt to index nil")
             end
             t = rawget(t, v)
         end
