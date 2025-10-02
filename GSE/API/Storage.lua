@@ -1432,6 +1432,7 @@ function GSE.CompileTemplate(macro)
 
     return GSE.UnEscapeTable(GSE.ProcessVariables(compiledMacro, variables)), template
 end
+
 local myAceTimer = LibStub("AceTimer-3.0"):Embed(GSE)
 local function PCallCreateGSE3Button(macro, name, combatReset)
     if GSE.isEmpty(macro) then

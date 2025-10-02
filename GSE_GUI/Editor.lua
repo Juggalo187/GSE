@@ -320,33 +320,27 @@ function GSE.GUIEditorPerformLayout(frame)
     editButtonGroup:SetHeight(15)
 
     local savebutton = AceGUI:Create("Button")
-    savebutton:SetText(L["Save"])
-    savebutton:SetWidth(100)
-    savebutton:SetCallback(
-        "OnClick",
-        function()
-            if GSE.isEmpty(editframe.invalidPause) then
-                local gameversion, build, date, tocversion = GetBuildInfo()
-                editframe.Sequence.MetaData.ManualIntervention = true
-                editframe.Sequence.MetaData.GSEVersion = GSE.VersionNumber
-                editframe.Sequence.MetaData.EnforceCompatability = true
-                editframe.Sequence.MetaData.TOC = tocversion
-                nameeditbox:SetText(string.upper(nameeditbox:GetText()))
-                editframe.SequenceName = GSE.UnEscapeString(nameeditbox:GetText())
-                GSE.GUIUpdateSequenceDefinition(editframe.ClassID, editframe.SequenceName, editframe.Sequence)
-                editframe.save = true
-                -- C_Timer.After(
-                    -- 5,
-                    -- function()
-                        -- GSE.GUIEditFrame:SetStatusText(editframe.statusText)
-                    -- end
-                -- )
-				myAceTimer1:ScheduleTimer(MyTimer1Func, 5)
-            else
-                GSE.Print(L["Error processing Custom Pause Value.  You will need to recheck your macros."], "ERROR")
-            end
-        end
-    )
+	savebutton:SetText(L["Save"])
+	savebutton:SetWidth(100)
+	savebutton:SetCallback(
+    "OnClick",
+    function()
+        if GSE.isEmpty(editframe.invalidPause) then
+            local gameversion, build, date, tocversion = GetBuildInfo()
+            editframe.Sequence.MetaData.ManualIntervention = true
+            editframe.Sequence.MetaData.GSEVersion = GSE.VersionNumber
+            editframe.Sequence.MetaData.EnforceCompatability = true
+            editframe.Sequence.MetaData.TOC = tocversion
+            nameeditbox:SetText(string.upper(nameeditbox:GetText()))
+            editframe.SequenceName = GSE.UnEscapeString(nameeditbox:GetText())
+            GSE.GUIUpdateSequenceDefinition(editframe.ClassID, editframe.SequenceName, editframe.Sequence)
+            editframe.save = true
+            myAceTimer1:ScheduleTimer(MyTimer1Func, 5)
+        else
+            GSE.Print(L["Error processing Custom Pause Value.  You will need to recheck your macros."], "ERROR")
+			end
+		end
+	)
 
     savebutton:SetCallback(
         "OnEnter",
@@ -1744,6 +1738,12 @@ local function addKeyPairRow(container, rowWidth, key, value, version)
         value = "My new variable"
         blank = true
     end
+    
+    -- Ensure Variables table exists
+    if not editframe.Sequence.Macros[version].Variables then
+        editframe.Sequence.Macros[version].Variables = {}
+    end
+    
     if blank == true then
         editframe.Sequence.Macros[version].Variables[key] = value
         if oldkey ~= key then
@@ -1765,6 +1765,11 @@ local function addKeyPairRow(container, rowWidth, key, value, version)
     keyEditBox:SetCallback(
         "OnTextChanged",
         function(self, event, text)
+            -- Ensure Variables table exists
+            if not editframe.Sequence.Macros[version].Variables then
+                editframe.Sequence.Macros[version].Variables = {}
+            end
+            
             editframe.Sequence.Macros[version].Variables[text] =
                 editframe.Sequence.Macros[version].Variables[currentKey]
             editframe.Sequence.Macros[version].Variables[currentKey] = nil
@@ -1777,42 +1782,57 @@ local function addKeyPairRow(container, rowWidth, key, value, version)
     spacerlabel1:SetWidth(5)
     linegroup1:AddChild(spacerlabel1)
 
-    -- local valueEditBox = AceGUI:Create("MultiLineEditBox")
-    -- valueEditBox:SetLabel()
-    -- valueEditBox:SetNumLines(3)
-    -- valueEditBox:SetWidth(rowWidth * 0.75 + 5)
-    -- valueEditBox:DisableButton(true)
-    -- valueEditBox:SetText(value)
-    -- valueEditBox:SetCallback(
-        -- "OnTextChanged",
-        -- function(self, event, text)
-            -- editframe.Sequence.Macros[version].Variables[currentKey] = GSE.SplitMeIntolines(text)
-        -- end
-    -- )
-	    local valueEditBox = AceGUI:Create("MultiLineEditBox")
+    -- CORRECTED VARIABLE EDITOR
+    local valueEditBox = AceGUI:Create("MultiLineEditBox")
     valueEditBox:SetLabel()
     valueEditBox:SetNumLines(3)
     valueEditBox:SetWidth(rowWidth * 0.75 + 5)
     valueEditBox:DisableButton(true)
-    valueEditBox:SetText(value)
+    
+    -- Handle both string and table values
+    local displayValue = value
+    if type(value) == "table" then
+        displayValue = table.concat(value, "\n")
+    end
+    valueEditBox:SetText(displayValue)
+    
     valueEditBox:SetCallback(
-        "OnTextChanged",
-        function(self, event, text)
-            editframe.Sequence.Macros[version].Variables[currentKey] = GSE.SplitMeIntolines(text)
+    "OnTextChanged",
+    function(self, event, text)
+        -- Ensure Variables table exists
+        if not editframe.Sequence.Macros[version].Variables then
+            editframe.Sequence.Macros[version].Variables = {}
         end
-    )
+        
+        -- Store as table of lines, handling empty lines properly
+        local lines = {}
+        for line in text:gmatch("[^\r\n]+") do
+            local trimmedLine = line:match("^%s*(.-)%s*$")  -- Trim whitespace
+            if trimmedLine ~= "" then  -- Only add non-empty lines
+                table.insert(lines, trimmedLine)
+            end
+        end
+        
+        -- If we have no lines after trimming, store as empty table
+        if #lines == 0 then
+            lines = {""}
+        end
+        
+        editframe.Sequence.Macros[version].Variables[currentKey] = lines
+        GSE.PrintDebugMessage("Editor: Updated variable '" .. currentKey .. "' to table with " .. #lines .. " lines: " .. table.concat(lines, " | "), "Editor")
+    end
+)
+
     valueEditBox:SetCallback(
         "OnEditFocusLost",
         function()
-            valueEditBox:SetText(
-                table.concat(
-                    GSE.TranslateSequence(
-                        editframe.Sequence.Macros[version].Variables[currentKey],
-                        Statics.TranslatorMode.Current
-                    ),
-                    "\n"
-                )
-            )
+            -- Refresh display with translated version
+            local currentValue = editframe.Sequence.Macros[version].Variables[currentKey]
+            if type(currentValue) == "table" then
+                local translated = GSE.TranslateSequence(currentValue, Statics.TranslatorMode.Current)
+                local displayText = table.concat(translated, "\n")
+                valueEditBox:SetText(displayText)
+            end
         end
     )
 
@@ -1886,7 +1906,9 @@ local function addKeyPairRow(container, rowWidth, key, value, version)
     deleteRowButton:SetCallback(
         "OnClick",
         function()
-            editframe.Sequence.Macros[version].Variables[keyEditBox:GetText()] = nil
+            if editframe.Sequence.Macros[version].Variables then
+                editframe.Sequence.Macros[version].Variables[keyEditBox:GetText()] = nil
+            end
             linegroup1:ReleaseChildren()
         end
     )
