@@ -7,7 +7,7 @@ GSEOptions = {}
 function GSE.resetMacroResetModifiers()
     GSEOptions.MacroResetModifiers = {}
     GSEOptions.MacroResetModifiers["LeftButton"] = false
-    GSEOptions.MacroResetModifiers["RightButton"] = true
+    GSEOptions.MacroResetModifiers["RightButton"] = false
     GSEOptions.MacroResetModifiers["MiddleButton"] = false
     GSEOptions.MacroResetModifiers["Button4"] = false
     GSEOptions.MacroResetModifiers["Button5"] = false
@@ -19,7 +19,7 @@ function GSE.resetMacroResetModifiers()
     GSEOptions.MacroResetModifiers["Control"] = false
     GSEOptions.MacroResetModifiers["LeftShift"] = false
     GSEOptions.MacroResetModifiers["RightShift"] = false
-    GSEOptions.MacroResetModifiers["Shift"] = true
+    GSEOptions.MacroResetModifiers["Shift"] = false
     GSEOptions.MacroResetModifiers["LeftAlt"] = false
     GSEOptions.MacroResetModifiers["RightAlt"] = false
     GSEOptions.MacroResetModifiers["AnyMod"] = false

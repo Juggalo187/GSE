@@ -3,12 +3,7 @@ if GetLocale() ~= "ptBR" then
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("GSE", "ptBR")
-L["Mouse Button Reset Options"] = "Mouse Button Reset Options"
-L["Left Mouse Button"] = "Left Mouse Button"
-L["Right Mouse Button"] = "Right Mouse Button"
-L["Middle Mouse Button"] = "Middle Mouse Button"
-L["Mouse Button 4"] = "Mouse Button 4"
-L["Mouse Button 5"] = "Mouse Button 5"
+
 -- Options translation
 L["  The Alternative ClassID is "] = "A ClassID alternativa é "
 L[" Deleted Orphaned Macro "] = "Macro Órfã Apagada"

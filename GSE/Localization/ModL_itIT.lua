@@ -3,12 +3,7 @@ if GetLocale() ~= "itIT" then
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("GSE", "itIT")
-L["Mouse Button Reset Options"] = "Mouse Button Reset Options"
-L["Left Mouse Button"] = "Left Mouse Button"
-L["Right Mouse Button"] = "Right Mouse Button"
-L["Middle Mouse Button"] = "Middle Mouse Button"
-L["Mouse Button 4"] = "Mouse Button 4"
-L["Mouse Button 5"] = "Mouse Button 5"
+
 -- Options translation
 --[[Translation missing --]]
 L["  The Alternative ClassID is "] = "  The Alternative ClassID is "

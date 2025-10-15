@@ -18,13 +18,6 @@ L["|r Incomplete Sequence Definition - This sequence has no further information 
 L["Two sequences with unknown sources found."] = true
 L["FYou cannot delete this version of a sequence.  This version will be reloaded as it is contained in "] = true
 
-L["Mouse Button Reset Options"] = true
-L["Left Mouse Button"] = true
-L["Right Mouse Button"] = true
-L["Middle Mouse Button"] = true
-L["Mouse Button 4"] = true
-L["Mouse Button 5"] = true
-
 -- Setup and Help Output from Core
 L["GnomeSequencer was originally written by semlar of wowinterface.com."] = true
 L["This is a small addon that allows you create a sequence of macros to be executed at the push of a button."] = true
