@@ -567,33 +567,73 @@ Statics.ActionsIcons.Up = "Interface\\Addons\\GSE_GUI\\Assets\\up.tga"
 Statics.ActionsIcons.Down = "Interface\\Addons\\GSE_GUI\\Assets\\down.tga"
 Statics.ActionsIcons.Delete = "Interface\\Addons\\GSE_GUI\\Assets\\delete.tga"
 
--- Statics.GSE3OnClick =
-    -- [=[
--- local step = self:GetAttribute('step')
--- step = tonumber(step)
--- self:SetAttribute('macrotext', macros[step] )
--- step = step % #macros + 1
--- if not step or not macros[step] then -- User attempted to write a step method that doesn't work, reset to 1
-	-- print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
-	-- step = 1
--- end
--- self:SetAttribute('step', step)
--- self:CallMethod('UpdateIcon')
--- ]=]
-
--- Change this in your Statics table or wherever it's defined:
 Statics.GSE3OnClick =
     [=[
 local step = self:GetAttribute('step')
 step = tonumber(step)
-self:SetAttribute('macrotext', macros[step] )
-step = step % #macros + 1
-if not step or not macros[step] then
-    print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
-    step = 1
+
+-- Get the mouse button that was clicked
+local mouseButton = GetMouseButtonClicked()
+
+-- Check for any enabled modifier keys from GSE options, but only for allowed mouse buttons
+local resetRequested = false
+
+-- Only check modifiers if this was a mouse click (not keypress) and the mouse button is enabled for reset
+if mouseButton and mouseButton ~= "0" then
+    -- Check if this mouse button is enabled for reset
+    local mouseButtonEnabled = false
+    if mouseButton == "LeftButton" and self:GetAttribute("resetMod_LeftButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "RightButton" and self:GetAttribute("resetMod_RightButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "MiddleButton" and self:GetAttribute("resetMod_MiddleButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "Button4" and self:GetAttribute("resetMod_Button4") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "Button5" and self:GetAttribute("resetMod_Button5") then
+        mouseButtonEnabled = true
+    end
+
+    -- If the mouse button is enabled, check the modifier keys
+    if mouseButtonEnabled then
+        if self:GetAttribute("resetMod_Alt") and IsAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftAlt") and IsLeftAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightAlt") and IsRightAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_Control") and IsControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftControl") and IsLeftControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightControl") and IsRightControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_Shift") and IsShiftKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftShift") and IsLeftShiftKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightShift") and IsRightShiftKeyDown() then
+            resetRequested = true
+        end
+    end
 end
-self:SetAttribute('step', step)
-self:SetAttribute("updateicon", true) -- Changed from CallMethod to SetAttribute
+
+if resetRequested then
+    step = 1
+    self:SetAttribute('macrotext', macros[step] )
+    -- Don't increment step after reset - stay on step 1
+    self:SetAttribute('step', step)
+else
+    self:SetAttribute('macrotext', macros[step] )
+    step = step % #macros + 1
+    if not step or not macros[step] then
+        print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
+        step = 1
+    end
+    self:SetAttribute('step', step)
+end
+
+self:SetAttribute("updateicon", true)
 ]=]
 
 Statics.TranslatorMode = {}

@@ -3,7 +3,12 @@ if GetLocale() ~= "zhTW" then
 end
 
 local L = LibStub("AceLocale-3.0"):NewLocale("GSE", "zhTW")
-
+L["Mouse Button Reset Options"] = "Mouse Button Reset Options"
+L["Left Mouse Button"] = "Left Mouse Button"
+L["Right Mouse Button"] = "Right Mouse Button"
+L["Middle Mouse Button"] = "Middle Mouse Button"
+L["Mouse Button 4"] = "Mouse Button 4"
+L["Mouse Button 5"] = "Mouse Button 5"
 -- Options translation
 L["  The Alternative ClassID is "] = "其他的職業ID"
 L[" Deleted Orphaned Macro "] = "刪除未被使用的巨集"
