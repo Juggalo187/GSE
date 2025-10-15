@@ -43,8 +43,7 @@ for tab = 1, GetNumTalentTabs() do
    
 end
 
-	--local tabname, name1, specdescription, icon, nopointsSpent, tabbackground, tabpreviewPointsSpent, isUnlocked = GetTalentTabInfo(primarytree,false,false,activeSpec)
-	local name1,icon=GetTalentTabInfo(primarytree,false,false,activeSpec)
+	local tabname, name1, specdescription, icon, nopointsSpent, tabbackground, tabpreviewPointsSpent, isUnlocked = GetTalentTabInfo(primarytree,false,false,activeSpec)
 	if name1 ~= nil then
 	name1=string.upper(name1)
 	else

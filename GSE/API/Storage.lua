@@ -558,12 +558,41 @@ function GSE.SetMacroLocation()
     return returnval
 end
 
+-- function GSE.CreateMacroString(macroname)
+    -- local returnVal = "#showtooltip\n/click "
+    -- local state = GSE.GetMacroStringFormat()
+    -- local t = state == "DOWN" and "t" or "f"
+
+    -- if GSE.GetMacroStringFormat() == "DOWN" or GSEOptions.MacroResetModifiers["LeftButton"] then
+        -- returnVal = returnVal .. "[button:1] " .. macroname .. " LeftButton " .. t .. "; "
+    -- end
+    -- if GSEOptions.MacroResetModifiers["RightButton"] then
+        -- returnVal = returnVal .. "[button:2] " .. macroname .. " RightButton " .. t .. "; "
+    -- end
+    -- if GSEOptions.MacroResetModifiers["MiddleButton"] then
+        -- returnVal = returnVal .. "[button:3] " .. macroname .. " MiddleButton " .. t .. "; "
+    -- end
+    -- if GSEOptions.MacroResetModifiers["Button4"] then
+        -- returnVal = returnVal .. "[button:4] " .. macroname .. " Button4 " .. t .. "; "
+    -- end
+    -- if GSEOptions.MacroResetModifiers["Button5"] then
+        -- returnVal = returnVal .. "[button:5] " .. macroname .. " Button5 " .. t .. "; "
+    -- end
+    -- if GSEOptions.virtualButtonSupport then
+        -- returnVal = returnVal .. "[nobutton:1] " .. macroname .. "; "
+    -- end
+
+    -- returnVal = returnVal .. macroname
+    -- return returnVal
+-- end
+
 function GSE.CreateMacroString(macroname)
     local returnVal = "#showtooltip\n/click "
     local state = GSE.GetMacroStringFormat()
     local t = state == "DOWN" and "t" or "f"
 
-    if GSE.GetMacroStringFormat() == "DOWN" or GSEOptions.MacroResetModifiers["LeftButton"] then
+    -- Add conditions for all enabled mouse buttons
+    if GSEOptions.MacroResetModifiers["LeftButton"] then
         returnVal = returnVal .. "[button:1] " .. macroname .. " LeftButton " .. t .. "; "
     end
     if GSEOptions.MacroResetModifiers["RightButton"] then
@@ -578,6 +607,7 @@ function GSE.CreateMacroString(macroname)
     if GSEOptions.MacroResetModifiers["Button5"] then
         returnVal = returnVal .. "[button:5] " .. macroname .. " Button5 " .. t .. "; "
     end
+    
     if GSEOptions.virtualButtonSupport then
         returnVal = returnVal .. "[nobutton:1] " .. macroname .. "; "
     end
@@ -1532,3 +1562,127 @@ function GSE.ExportSequence(sequence, sequenceName, verbose)
 
     return returnVal
 end
+
+function GSE.UpdateAllButtonsResetModifiers()
+    local currentClassID = GSE.GetCurrentClassID()
+    if not GSE.Library or not GSE.Library[currentClassID] then return end
+    
+    for seqName, _ in pairs(GSE.Library[currentClassID]) do
+        local button = _G[seqName]
+        if button then
+            -- Mouse buttons
+            button:SetAttribute("resetMod_LeftButton", GSEOptions.MacroResetModifiers["LeftButton"] or false)
+            button:SetAttribute("resetMod_RightButton", GSEOptions.MacroResetModifiers["RightButton"] or false)
+            button:SetAttribute("resetMod_MiddleButton", GSEOptions.MacroResetModifiers["MiddleButton"] or false)
+            button:SetAttribute("resetMod_Button4", GSEOptions.MacroResetModifiers["Button4"] or false)
+            button:SetAttribute("resetMod_Button5", GSEOptions.MacroResetModifiers["Button5"] or false)
+            
+            -- Modifier keys
+            button:SetAttribute("resetMod_Alt", GSEOptions.MacroResetModifiers["Alt"] or false)
+            button:SetAttribute("resetMod_LeftAlt", GSEOptions.MacroResetModifiers["LeftAlt"] or false)
+            button:SetAttribute("resetMod_RightAlt", GSEOptions.MacroResetModifiers["RightAlt"] or false)
+            button:SetAttribute("resetMod_Control", GSEOptions.MacroResetModifiers["Control"] or false)
+            button:SetAttribute("resetMod_LeftControl", GSEOptions.MacroResetModifiers["LeftControl"] or false)
+            button:SetAttribute("resetMod_RightControl", GSEOptions.MacroResetModifiers["RightControl"] or false)
+            button:SetAttribute("resetMod_Shift", GSEOptions.MacroResetModifiers["Shift"] or false)
+            button:SetAttribute("resetMod_LeftShift", GSEOptions.MacroResetModifiers["LeftShift"] or false)
+            button:SetAttribute("resetMod_RightShift", GSEOptions.MacroResetModifiers["RightShift"] or false)
+        end
+    end
+end
+
+-- Modify the existing CreateGSE3Button function to ensure reset modifiers are set
+local originalCreateGSE3Button = GSE.CreateGSE3Button
+GSE.CreateGSE3Button = function(macro, name, combatReset)
+    -- Call original function
+    originalCreateGSE3Button(macro, name, combatReset)
+    
+    -- Ensure reset modifiers are set for the new button
+    local button = _G[name]
+    if button then
+		button:SetAttribute("resetMod_LeftButton", GSEOptions.MacroResetModifiers["LeftButton"] or false)
+		button:SetAttribute("resetMod_RightButton", GSEOptions.MacroResetModifiers["RightButton"] or false)
+		button:SetAttribute("resetMod_MiddleButton", GSEOptions.MacroResetModifiers["MiddleButton"] or false)
+		button:SetAttribute("resetMod_Button4", GSEOptions.MacroResetModifiers["Button4"] or false)
+		button:SetAttribute("resetMod_Button5", GSEOptions.MacroResetModifiers["Button5"] or false)
+        button:SetAttribute("resetMod_Alt", GSEOptions.MacroResetModifiers["Alt"] or false)
+        button:SetAttribute("resetMod_LeftAlt", GSEOptions.MacroResetModifiers["LeftAlt"] or false)
+        button:SetAttribute("resetMod_RightAlt", GSEOptions.MacroResetModifiers["RightAlt"] or false)
+        button:SetAttribute("resetMod_Control", GSEOptions.MacroResetModifiers["Control"] or false)
+        button:SetAttribute("resetMod_LeftControl", GSEOptions.MacroResetModifiers["LeftControl"] or false)
+        button:SetAttribute("resetMod_RightControl", GSEOptions.MacroResetModifiers["RightControl"] or false)
+        button:SetAttribute("resetMod_Shift", GSEOptions.MacroResetModifiers["Shift"] or false)
+        button:SetAttribute("resetMod_LeftShift", GSEOptions.MacroResetModifiers["LeftShift"] or false)
+        button:SetAttribute("resetMod_RightShift", GSEOptions.MacroResetModifiers["RightShift"] or false)
+    end
+end
+
+function GSE.UpdateResetModifiersOnOptionsChange()
+    GSE.UpdateAllButtonsResetModifiers()
+    GSE.UpdateMacroString()  -- This updates the macro strings with new mouse buttons
+end
+-- Set modifier attributes based on GSE options (3.3.5 compatible)
+local function SetResetModifierAttributes()
+    local currentClassID = GSE.GetCurrentClassID()
+    if not GSE.Library or not GSE.Library[currentClassID] then return end
+    
+    for seqName, _ in pairs(GSE.Library[currentClassID]) do
+        local button = _G[seqName]
+        if button then
+            -- Set attributes for each modifier option
+            button:SetAttribute("resetMod_LeftButton", GSEOptions.MacroResetModifiers["LeftButton"] or false)
+            button:SetAttribute("resetMod_RightButton", GSEOptions.MacroResetModifiers["RightButton"] or false)
+            button:SetAttribute("resetMod_MiddleButton", GSEOptions.MacroResetModifiers["MiddleButton"] or false)
+            button:SetAttribute("resetMod_Button4", GSEOptions.MacroResetModifiers["Button4"] or false)
+            button:SetAttribute("resetMod_Button5", GSEOptions.MacroResetModifiers["Button5"] or false)
+            button:SetAttribute("resetMod_Alt", GSEOptions.MacroResetModifiers["Alt"] or false)
+            button:SetAttribute("resetMod_LeftAlt", GSEOptions.MacroResetModifiers["LeftAlt"] or false)
+            button:SetAttribute("resetMod_RightAlt", GSEOptions.MacroResetModifiers["RightAlt"] or false)
+            button:SetAttribute("resetMod_Control", GSEOptions.MacroResetModifiers["Control"] or false)
+            button:SetAttribute("resetMod_LeftControl", GSEOptions.MacroResetModifiers["LeftControl"] or false)
+            button:SetAttribute("resetMod_RightControl", GSEOptions.MacroResetModifiers["RightControl"] or false)
+            button:SetAttribute("resetMod_Shift", GSEOptions.MacroResetModifiers["Shift"] or false)
+            button:SetAttribute("resetMod_LeftShift", GSEOptions.MacroResetModifiers["LeftShift"] or false)
+            button:SetAttribute("resetMod_RightShift", GSEOptions.MacroResetModifiers["RightShift"] or false)
+        end
+    end
+end
+
+-- Hook button creation to set modifier attributes
+local originalCreateGSE3Button = GSE.CreateGSE3Button
+GSE.CreateGSE3Button = function(macro, name, combatReset)
+    -- Call original function
+    originalCreateGSE3Button(macro, name, combatReset)
+    
+    -- Set modifier attributes for the new button
+    local button = _G[name]
+    if button then
+        button:SetAttribute("resetMod_Alt", GSEOptions.MacroResetModifiers["Alt"] or false)
+        button:SetAttribute("resetMod_LeftAlt", GSEOptions.MacroResetModifiers["LeftAlt"] or false)
+        button:SetAttribute("resetMod_RightAlt", GSEOptions.MacroResetModifiers["RightAlt"] or false)
+        button:SetAttribute("resetMod_Control", GSEOptions.MacroResetModifiers["Control"] or false)
+        button:SetAttribute("resetMod_LeftControl", GSEOptions.MacroResetModifiers["LeftControl"] or false)
+        button:SetAttribute("resetMod_RightControl", GSEOptions.MacroResetModifiers["RightControl"] or false)
+        button:SetAttribute("resetMod_Shift", GSEOptions.MacroResetModifiers["Shift"] or false)
+        button:SetAttribute("resetMod_LeftShift", GSEOptions.MacroResetModifiers["LeftShift"] or false)
+        button:SetAttribute("resetMod_RightShift", GSEOptions.MacroResetModifiers["RightShift"] or false)
+    end
+end
+
+-- Update attributes for existing buttons using an OnUpdate timer
+local updateTimer = 0
+local updateFrame = CreateFrame("Frame")
+updateFrame:SetScript("OnUpdate", function(self, elapsed)
+    updateTimer = updateTimer + elapsed
+    if updateTimer > 2 then -- Wait 2 seconds after load
+        SetResetModifierAttributes()
+        GSE.Print("Reset modifier system loaded - using GSE options", "Storage")
+        self:SetScript("OnUpdate", nil) -- Stop the timer
+    end
+end)
+
+-- Also update when sequences are reloaded
+hooksecurefunc(GSE, "PerformReloadSequences", function()
+    SetResetModifierAttributes()
+end)
+

@@ -323,64 +323,64 @@ Statics.SpecIDList = {
 
 Statics.wotlkClassIDList = {
   [0] = "Global",
-  [1] = "Hero",
-  [2] = "Hero",
-  [3] = "Hero",
-  [4] = "Hero",
-  [5] = "Hero",
-  [6] = "Hero",
-  [7] = "Hero",
-  [8] = "Hero",
-  [9] = "Hero",
-  --[10] = "Hero",
-  [11] = "Hero",
- -- [12] = "Hero",
+  [1] = "Warrior",
+  [2] = "Paladin",
+  [3] = "Hunter",
+  [4] = "Rogue",
+  [5] = "Priest",
+  [6] = "DeathKnight",
+  [7] = "Shaman",
+  [8] = "Mage",
+  [9] = "Warlock",
+  --[10] = "Monk",
+  [11] = "Druid",
+ -- [12] = "Demon Hunter",
 }
 Statics.wotlkSpecIDList = {
   [0] = "Global",
-  [1] = "Hero",
-  [2] = "Hero",
-  [3] = "Hero",
-  [4] = "Hero",
-  [5] = "Hero",
-  [6] = "Hero",
-  [7] = "Hero",
-  [8] = "Hero",
-  [9] = "Hero",
- --- [10] = "Hero",
-  [11] = "Hero",
- --- [12] = "Hero",
-  [62] = "Arcane - Hero",
-  [63] = "Fire - Hero",
-  [64] = "Frost - Hero",
-  [65] = "Holy - Hero",
-  [66] = "Protection - Hero",
-  [70] = "Retribution - Hero",
-  [71] = "Arms - Hero",
-  [72] = "Fury - Hero",
-  [73] = "Protection - Hero",
-  [102] = "Balance - Hero",
-  [103] = "Feral - Hero",
---  [104] = "Guardian - Hero",
-  [105] = "Restoration - Hero",
-  [250] = "Blood - Hero",
-  [251] = "Frost - Hero",
-  [252] = "Unholy - Hero",
-  [253] = "Beast Mastery - Hero",
-  [254] = "Marksmanship - Hero",
-  [255] = "Survival - Hero",
-  [256] = "Discipline - Hero",
-  [257] = "Holy - Hero",
-  [258] = "Shadow - Hero",
-  [259] = "Assassination - Hero",
-  [260] = "Combat - Hero",
-  [261] = "Subtlety - Hero",
-  [262] = "Elemental - Hero",
-  [263] = "Enhancement - Hero",
-  [264] = "Restoration - Hero",
-  [265] = "Affliction - Hero",
-  [266] = "Demonology - Hero",
-  [267] = "Destruction - Hero",
+  [1] = "Warrior",
+  [2] = "Paladin",
+  [3] = "Hunter",
+  [4] = "Rogue",
+  [5] = "Priest",
+  [6] = "DeathKnight",
+  [7] = "Shaman",
+  [8] = "Mage",
+  [9] = "Warlock",
+ --- [10] = "Monk",
+  [11] = "Druid",
+ --- [12] = "Demon Hunter",
+  [62] = "Arcane - Mage",
+  [63] = "Fire - Mage",
+  [64] = "Frost - Mage",
+  [65] = "Holy - Paladin",
+  [66] = "Protection - Paladin",
+  [70] = "Retribution - Paladin",
+  [71] = "Arms - Warrior",
+  [72] = "Fury - Warrior",
+  [73] = "Protection - Warrior",
+  [102] = "Balance - Druid",
+  [103] = "Feral - Druid",
+---  [104] = "Guardian - Druid",
+  [105] = "Restoration - Druid",
+  [250] = "Blood - DeathKnight",
+  [251] = "Frost - DeathKnight",
+  [252] = "Unholy - DeathKnight",
+  [253] = "Beast Mastery - Hunter",
+  [254] = "Marksmanship - Hunter",
+  [255] = "Survival - Hunter",
+  [256] = "Discipline - Priest",
+  [257] = "Holy - Priest",
+  [258] = "Shadow - Priest",
+  [259] = "Assassination - Rogue",
+  [260] = "Combat - Rogue",
+  [261] = "Subtlety - Rogue",
+  [262] = "Elemental - Shaman",
+  [263] = "Enhancement - Shaman",
+  [264] = "Restoration - Shaman",
+  [265] = "Affliction - Warlock",
+  [266] = "Demonology - Warlock",
+  [267] = "Destruction - Warlock",
  --- [268] = "Brewmaster",
 ---  [269] = "Windwalker",
   ---[270] = "Mistweaver",
@@ -567,33 +567,73 @@ Statics.ActionsIcons.Up = "Interface\\Addons\\GSE_GUI\\Assets\\up.tga"
 Statics.ActionsIcons.Down = "Interface\\Addons\\GSE_GUI\\Assets\\down.tga"
 Statics.ActionsIcons.Delete = "Interface\\Addons\\GSE_GUI\\Assets\\delete.tga"
 
--- Statics.GSE3OnClick =
-    -- [=[
--- local step = self:GetAttribute('step')
--- step = tonumber(step)
--- self:SetAttribute('macrotext', macros[step] )
--- step = step % #macros + 1
--- if not step or not macros[step] then -- User attempted to write a step method that doesn't work, reset to 1
-	-- print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
-	-- step = 1
--- end
--- self:SetAttribute('step', step)
--- self:CallMethod('UpdateIcon')
--- ]=]
-
--- Change this in your Statics table or wherever it's defined:
 Statics.GSE3OnClick =
     [=[
 local step = self:GetAttribute('step')
 step = tonumber(step)
-self:SetAttribute('macrotext', macros[step] )
-step = step % #macros + 1
-if not step or not macros[step] then
-    print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
-    step = 1
+
+-- Get the mouse button that was clicked
+local mouseButton = GetMouseButtonClicked()
+
+-- Check for any enabled modifier keys from GSE options, but only for allowed mouse buttons
+local resetRequested = false
+
+-- Only check modifiers if this was a mouse click (not keypress) and the mouse button is enabled for reset
+if mouseButton and mouseButton ~= "0" then
+    -- Check if this mouse button is enabled for reset
+    local mouseButtonEnabled = false
+    if mouseButton == "LeftButton" and self:GetAttribute("resetMod_LeftButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "RightButton" and self:GetAttribute("resetMod_RightButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "MiddleButton" and self:GetAttribute("resetMod_MiddleButton") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "Button4" and self:GetAttribute("resetMod_Button4") then
+        mouseButtonEnabled = true
+    elseif mouseButton == "Button5" and self:GetAttribute("resetMod_Button5") then
+        mouseButtonEnabled = true
+    end
+
+    -- If the mouse button is enabled, check the modifier keys
+    if mouseButtonEnabled then
+        if self:GetAttribute("resetMod_Alt") and IsAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftAlt") and IsLeftAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightAlt") and IsRightAltKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_Control") and IsControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftControl") and IsLeftControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightControl") and IsRightControlKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_Shift") and IsShiftKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_LeftShift") and IsLeftShiftKeyDown() then
+            resetRequested = true
+        elseif self:GetAttribute("resetMod_RightShift") and IsRightShiftKeyDown() then
+            resetRequested = true
+        end
+    end
 end
-self:SetAttribute('step', step)
-self:SetAttribute("updateicon", true) -- Changed from CallMethod to SetAttribute
+
+if resetRequested then
+    step = 1
+    self:SetAttribute('macrotext', macros[step] )
+    -- Don't increment step after reset - stay on step 1
+    self:SetAttribute('step', step)
+else
+    self:SetAttribute('macrotext', macros[step] )
+    step = step % #macros + 1
+    if not step or not macros[step] then
+        print('|cffff0000Invalid step assigned by custom step sequence', self:GetName(), step or 'nil', '|r')
+        step = 1
+    end
+    self:SetAttribute('step', step)
+end
+
+self:SetAttribute("updateicon", true)
 ]=]
 
 Statics.TranslatorMode = {}
@@ -605,7 +645,7 @@ Statics.TableMetadataFunction = {
     __index = function(t, k)
         for _, v in ipairs(k) do
             if not t then
-                --error("attempt to index nil")
+                error("attempt to index nil")
             end
             t = rawget(t, v)
         end
